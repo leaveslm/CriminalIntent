@@ -3,3 +3,7 @@
 
 ## 内容
 Fragment、ListFragment、fragment argument、ViewPager
+
+## 开发环境
+Android Studio 2.1.2
+SDK API23

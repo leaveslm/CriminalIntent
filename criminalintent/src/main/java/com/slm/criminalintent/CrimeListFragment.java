@@ -32,7 +32,8 @@ public class CrimeListFragment extends ListFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true); // 指出fragment愿意添加item到选项菜单，接受onCreateOptionsMenu(...)方法的调用和指令
+        // 指出fragment愿意添加item到选项菜单，接受onCreateOptionsMenu(...)方法的调用和指令
+        setHasOptionsMenu(true);
 
         getActivity().setTitle(R.string.crime_title);
         crimes = CrimeLab.get(getActivity()).getCrimes();

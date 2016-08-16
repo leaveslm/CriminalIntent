@@ -110,6 +110,10 @@ public class CrimeFragment extends Fragment {
         return fragment;
     }
 
+    public void updateDate() {
+        dateButton.setText(crime.getDate().toString());
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -136,7 +140,9 @@ public class CrimeFragment extends Fragment {
         }
     }
 
-    public void updateDate() {
-        dateButton.setText(crime.getDate().toString());
+    @Override
+    public void onPause() {
+        super.onPause();
+        CrimeLab.get(getActivity()).saveCrimes();
     }
 }

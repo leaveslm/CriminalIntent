@@ -3,6 +3,8 @@ package com.slm.criminalintent;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -20,6 +22,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.support.v7.app.ActionBar;
+import android.widget.ImageButton;
 
 import java.util.Date;
 import java.util.UUID;
@@ -30,6 +33,7 @@ public class CrimeFragment extends Fragment {
     private EditText titleField;
     private Button dateButton;
     private CheckBox solvedCheckBox;
+    private ImageButton photoButton;
 
     public static final String EXTRA_CRIME_ID = "CRIME_ID";
     private static final String DIALOG_DATE = "date"; // DatePickerFragment tag
@@ -97,6 +101,25 @@ public class CrimeFragment extends Fragment {
                 crime.setSolved(isChecked);
             }
         });
+
+        photoButton = (ImageButton) view.findViewById(R.id.crime_imageButton);
+        photoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), CrimeCameraActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        // 查询PackageManager确认设备是否带有相机
+        PackageManager pm = getActivity().getPackageManager();
+        boolean hasACamera = pm.hasSystemFeature(PackageManager.FEATURE_CAMERA) ||
+                pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT) ||
+                Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD ||
+                Camera.getNumberOfCameras() > 0;
+        if (!hasACamera) {
+            photoButton.setEnabled(false);
+        }
 
         return view;
     }

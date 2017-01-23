@@ -1,6 +1,7 @@
 package com.slm.criminalintent;
 
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,8 +17,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by Leaves on 2016/9/5.
@@ -28,6 +31,7 @@ public class CrimeCameraFragment extends Fragment {
 
     private Camera camera;
     private SurfaceView surfaceView;
+    private View progressContainer;
 
     @Nullable
     @Override
@@ -35,11 +39,16 @@ public class CrimeCameraFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_crime_camera, container, false);
 
+        progressContainer = view.findViewById(R.id.crime_camera_progressContainer);
+        progressContainer.setVisibility(View.INVISIBLE);
+
         Button takePictureButton = (Button) view.findViewById(R.id.crime_camera_takePictureButton);
         takePictureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getActivity().finish();
+                if (camera != null) {
+                    camera.takePicture(shutterCallback, null, jpegCallback);
+                }
             }
         });
 
@@ -84,6 +93,43 @@ public class CrimeCameraFragment extends Fragment {
 
         return view;
     }
+
+    private Camera.ShutterCallback shutterCallback = new Camera.ShutterCallback() {
+        @Override
+        public void onShutter() {
+            progressContainer.setVisibility(View.VISIBLE);
+        }
+    };
+
+    private Camera.PictureCallback jpegCallback = new Camera.PictureCallback() {
+        @Override
+        public void onPictureTaken(byte[] data, Camera camera) {
+            String filename = UUID.randomUUID().toString() + ".jpg";
+            FileOutputStream fileOutputStream = null;
+            boolean success = true;
+            try {
+                fileOutputStream = getActivity().openFileOutput(filename, Context.MODE_PRIVATE);
+                fileOutputStream.write(data);
+            } catch (Exception e) {
+                Log.e(TAG, "Error writing to file " + filename, e);
+                success = false;
+            } finally {
+                try {
+                    if (fileOutputStream != null) {
+                        fileOutputStream.close();
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "Error closing file " + filename, e);
+                    success = false;
+                }
+            }
+
+            if (success) {
+                Log.i(TAG, "JPEG saved at " + filename);
+            }
+            getActivity().finish();
+        }
+    };
 
     private Camera.Size getBestSupportedSize (List<Camera.Size> sizes, int width, int height) {
         Camera.Size bestSize = sizes.get(0);
